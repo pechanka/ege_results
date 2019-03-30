@@ -1,41 +1,42 @@
-import requests
 import re
-import json
-import codecs
-def htmlpage():
-    s = requests.Session()
-    page = s.get('http://res11.rcoi.net/res_exams.aspx').text
-    return page
+import files
 poisk=r'>(\w*-11.*?\d\d[.]\d\d[.]\d\d\d\d).*?>[0-9]+?<.*?>([0-9]+?)<'
 def regular(poisk, text):
     result=re.findall(poisk, text)
     return result
-mas = regular(poisk, htmlpage())
-exams = {}
-def jsonfilesin(file, mas):
-    for m in range(len(mas)):
-        exams[mas[m][0]] = mas[m][1]
-    with open(file+ '_json.json', "w") as write_file:
-        json.dump(exams, write_file)
-def jsonfilesout(file):
-    data = json.load(codecs.open(file+'_json.json', 'r', 'utf-8-sig'))
-    return data
+#mas = regular(poisk, files.htmlpage())
+#files.vvod('exams3', mas)
 def sravnenie(dict1, dict2):
     slovar = {}
     for f in dict1.keys():
         if not dict1[f] == dict2[f]:
             slovar[f] = [dict1[f], dict2[f]]
     return slovar
-#print(sravnenie(jsonfilesout('exams'), jsonfilesout('exams_new')))
+#sravnenie(jsonfiles.vivod('exams'), jsonfiles.vivod('exams_new'))
 def vk_id(examen, file):
-    students = []
-    t = jsonfilesout(file)
+    t = files.vivod(file)
     for ex in examen.keys():
         if ex in t.keys():
             for d in t[ex]:
                 print(d, ' Экзамен:', ex, ' Было:', examen[ex][0], ' Стало:', examen[ex][1])
                 print()
-vk_id(sravnenie(jsonfilesout('exams'), jsonfilesout('exams_new')), 'students')        
-        
+#vk_id(sravnenie(filesout('exams'), filesout('exams_new')), 'students')
+def change(file, i, exam, studentid):
+    a = files.vivod(file)
+    if i == '+':
+        if studentid in a[exam]:
+            res = "Ошибка"
+        else:
+            a[exam] += [studentid]
+            res = "Успешно"
+    if i == '-':
+        if studentid in a[exam]:
+            a[exam].remove(studentid)
+            res = "Успешно"
+        else:
+            res = "Ошибка"
+    files.zapis('students', a)
+    return res
+#change('students', '-', 'СОЧИН-11, 06.02.2019', '000000')
 
 

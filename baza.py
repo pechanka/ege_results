@@ -25,4 +25,3 @@ def baza_exams(mas):
         else:
             exams[mas[k][0]] += [mas[k][1]]
     return exams
-

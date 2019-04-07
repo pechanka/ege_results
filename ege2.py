@@ -24,5 +24,3 @@ def vk_id(examen, file):
                 print()
 
 files.json_save('exams_dates', baza.baza_exams(regular(poisk, files.htmlpage())))
-
-

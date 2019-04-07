@@ -3,13 +3,13 @@ import json
 import keyboard
 
 def zapis(file, k):
-    write_file = codecs.open('json files/' + file + '_json.json', 'w', 'utf-8-sig')
+    write_file = codecs.open('json/' + file + '.json', 'w', 'utf-8-sig')
     json.dump(k, write_file, ensure_ascii=False)
 
-def form_message(message, user, file = 'message_history_json.json'):
-    data = json.load(codecs.open('json files/' + file, 'r', 'utf-8-sig'))
-    exams = json.load(codecs.open('json files/decoding_exams_json.json', 'r', 'utf-8-sig'))
-    dates = json.load(codecs.open('json files/exams_dates_json.json', 'r', 'utf-8-sig'))
+def form_message(message, user, file = 'message_history.json'):
+    data  = json.load(codecs.open('json/' + file, 'r', 'utf-8-sig'))
+    exams = json.load(codecs.open('json/decoding_exams.json', 'r', 'utf-8-sig'))
+    dates = json.load(codecs.open('json/exams_dates.json', 'r', 'utf-8-sig'))
 
     if message.capitalize() in exams:
         data[user] = message.capitalize()

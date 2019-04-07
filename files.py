@@ -3,16 +3,16 @@ import codecs
 import requests
 
 def json_save(file, k):
-        with open(file+'_json.json', 'w', encoding = 'utf-8') as write_file:
+        with open(file+'.json', 'w', encoding = 'utf-8') as write_file:
                 json.dump(k, write_file, ensure_ascii=False)
 def json_exams(file, mas):
     exams = {}
     for m in range(len(mas)):
         exams[mas[m][0]] = [mas[m][1], mas[m][2]]
     zapis(file, exams)
-    
+
 def json_load(file):
-    data = json.load(codecs.open(file+'_json.json', 'r', 'utf-8-sig'))
+    data = json.load(codecs.open(file+'.json', 'r', 'utf-8-sig'))
     return data
 
 def htmlpage(n = 'internet'):

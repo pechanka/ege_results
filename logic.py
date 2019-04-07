@@ -7,7 +7,7 @@ def zapis(file, k):
     json.dump(k, write_file, ensure_ascii=False)
 
 def form_message(message, user, file = 'message_history.json'):
-    data = json.load(codecs.open('json/' + file, 'r', 'utf-8-sig'))
+    data  = json.load(codecs.open('json/' + file, 'r', 'utf-8-sig'))
     exams = json.load(codecs.open('json/decoding_exams.json', 'r', 'utf-8-sig'))
     dates = json.load(codecs.open('json/exams_dates.json', 'r', 'utf-8-sig'))
 

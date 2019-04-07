@@ -19,6 +19,3 @@ def keyboard(mas):
     }
     file = json.dumps(keyboard, ensure_ascii=False)
     return file
-
-
-

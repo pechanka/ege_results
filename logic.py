@@ -1,6 +1,7 @@
 import codecs
 import json
 import keyboard
+import re
 
 def zapis(file, k):
     write_file = codecs.open('json/' + file + '.json', 'w', 'utf-8-sig')
@@ -11,88 +12,108 @@ def form_message(message, user, file = 'message_history.json'):
     exams = json.load(codecs.open('json/decoding_exams.json', 'r', 'utf-8-sig'))
     dates = json.load(codecs.open('json/exams_dates.json', 'r', 'utf-8-sig'))
 
-    if message.capitalize() in exams:
-        data[user] = message.capitalize()
+    capital_message = message.capitalize()
+    if 'гвэ' in capital_message:
+        i = capital_message.find('(гвэ)')
+        capital_message = capital_message[:i] + '(ГВЭ)'
+
+    if message == 'привет':
+        return["Привет. Чтобы добавить экзамен, просто напиши название предмета (названия всех доступных предметов ты можешь посмотреть, отправив сообщение 'помощь')", keyboard.keyboard([])]
+
+    if message == 'помощь':
+        text = 'Список предметов, доступных для отслеживания:\n\n'
+        for n in ['Допуск к экзаменам', 'Русский язык', 'Математика', 'Физика', 'Химия', 'Информатика', 'Биология', 'История', 'География', 'Иностранный язык', 'Обществознание', 'Литература', 'ГВЭ']:
+            text += n + '\n'
+        text += "\nЧтобы перестать следить за экзаменом, просто напиши 'перестать следить'"
+        return [text, keyboard.keyboard([])]
+
+    if message == 'перестать следить':
+        data[user] = [0, '-']
         zapis('message_history', data)
-        text = 'Выбери дату экзамена:\n'
-        m = dates[exams[message.capitalize()]]
+        text = 'Выбери предмет:\n\n'
+        for n in ['Допуск к экзаменам', 'Русский язык', 'Математика', 'Физика', 'Химия', 'Информатика', 'Биология', 'История', 'География', 'Иностранный язык', 'Обществознание', 'Литература', 'ГВЭ']:
+            text += n + '\n'
+        return [text, keyboard.keyboard([])]
+
+    if capital_message in exams.keys():
+        if user in data:
+            if data[user][1] == '-':
+                data[user] = [capital_message, '-']
+            else:
+                data[user] = [capital_message, '+']
+        else:
+            data[user] = [capital_message, '+']
+        zapis('message_history', data)
+        text = 'Выбери дату экзамена:\n\n'
+        m = dates[exams[capital_message]]
         for t in m:
             text += t + '\n'
         return [text, keyboard.keyboard(m)]
 
-    if user in data.keys():
-        if message == 'стоп':
-            del data[user]
-            zapis('message_history', data)
-            return ['Запись остановлена. Вы можете добавить новый экзамен.', keyboard.keyboard([])]
-        if data[user] not in exams:
-            if data[user] == 'Математика':
-                if message in ['базовая', 'профильная']:
-                    data[user] = data[user] + ' (' + message + ')'
-                    zapis('message_history', data)
-                    n = dates[exams[data[user]]]
-                    return ['Выбери дату экзамена\n', keyboard.keyboard(n)]
+    if message == 'математика':
+        m = ['Математика (базовая)', 'Математика (профильная)']
+        text = 'Выбери уровень:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    if message == 'иностранный язык':
+        m = ['Английский', 'Немецкий','Французский', 'Испанский', 'Китайский']
+        text = 'Выбери язык:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    if message in ['английский', 'немецкий', 'французский', 'испанский', 'китайский']:
+        m = [capital_message + ' язык (устно)', capital_message + ' язык (письменно)']
+        text = 'Выбери вид:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    if message in ['английский язык', 'немецкий язык', 'французский язык', 'испанский язык', 'китайский язык']:
+        m = [capital_message + ' (устно)', capital_message + ' (письменно)']
+        text = 'Выбери вид:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    if message == 'гвэ':
+        m = ['Русский язык (ГВЭ)', 'Математика (ГВЭ)', 'Информатика (ГВЭ)', 'Обществознание (ГВЭ)']
+        text = 'Выбери экзамен:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    if message == 'допуск к экзаменам':
+        m = ['Итоговое сочинение', 'Итоговое изложение']
+        text = 'Выбери экзамен:\n\n'
+        for q in m:
+            text += q + '\n'
+        return [text, keyboard.keyboard(m)]
+
+    poisk = r'\d\d[.]\d\d[.]\d\d\d\d'
+    result = re.findall(poisk, message)
+    if result and message == result[0]:
+        m = []
+        if user in data.keys():
+            if data[user][0] == 0:
+                text = "Сначала выберите предмет (названия всех доступных предметов ты можешь посмотреть, написав 'помощь')"
+            elif message in dates[exams[data[user][0]]]:
+                if data[user][1] == '+':
+                    text = 'Экзамен добавлен'
                 else:
-                    return ['Ошибка', keyboard.keyboard([])]
-            if data[user] == 'Иностранный язык':
-                if message in ['английский', 'немецкий', 'французский', 'испанский', 'китайский']:
-                    data[user] = message.capitalize() + ' язык'
-                    zapis('message_history', data)
-                    m = ['устно', 'письменно']
-                    return ['Выберите вид\n', keyboard.keyboard(m)]
-                else:
-                    return ['Ошибка', keyboard.keyboard([])]
-            if data[user] in ['Английский язык', 'Немецкий язык', 'Французский язык', 'Испанский язык', 'Китайский язык']:
-                if message == 'устно' or 'письменно':
-                    data[user] = data[user] + ' (' + message + ')'
-                    zapis('message_history', data)
-                    k = dates[exams[data[user]]]
-                    return ['Выберите дату экзамена\n', keyboard.keyboard(k)]
-                else:
-                    return ['Ошибка', keyboard.keyboard([])]
-        if message in dates[exams[data[user]]]:
-            del data[user]
-            zapis('message_history', data)
-            return ['Экзамен успешно добавлен', keyboard.keyboard([])]
+                    text = 'Экзамен удалён'
+                del data[user]
+                zapis('message_history', data)
+            else:
+                text = 'В выбранную дату этот экзамен не проходит. Попробуй выбрать другую дату:\n\n'
+                m = dates[exams[data[user][0]]]
+                for t in m:
+                    text += t + '\n'
         else:
-            return ['Ошибка', keyboard.keyboard([])]
+            text = "Сначала выберите предмет (названия всех доступных предметов ты можешь посмотреть, написав 'помощь')"
+        return [text, keyboard.keyboard(m)]
+
     else:
-        if message == 'математика':
-            data[user] = message.capitalize()
-            zapis('message_history', data)
-            m = ['базовая', 'профильная']
-            return ['Выбери уровень\n', keyboard.keyboard(m)]
-
-        if message == 'иностранный язык':
-            data[user] = message.capitalize()
-            zapis('message_history', data)
-            m = ['английский', 'немецкий', 'французский', 'испанский', 'китайский']
-            return ['Выбери язык\n', keyboard.keyboard(m)]
-
-        if message in ['английский', 'немецкий', 'французский', 'испанский', 'китайский']:
-            data[user] = message.capitalize() + ' язык'
-            zapis('message_history', data)
-            m = ['устно', 'письменно']
-            return ['Выбери вид\n', keyboard.keyboard(m)]
-
-        if message in ['английский язык', 'немецкий язык', 'французский язык', 'испанский язык', 'китайский язык']:
-            data[user] = message.capitalize()
-            zapis('message_history', data)
-            text = 'Выберите вид\n'
-            m = ['устно', 'письменно']
-            return [text, keyboard.keyboard(m)]
-
-        if message == 'привет':
-            return["Привет, друг. Чтобы получить список экзаменов, напиши мне 'список экзаменов'. Чтобы подписаться на рассылку о каком-то экзамене, напиши мне название предмета, а затем выбери дату из предложенных вариантов.", keyboard.keyboard([])]
-
-        if message == 'список экзаменов':
-            text = 'Ты можешь выбрать предмет:\n'
-            for n in exams:
-                text += n + '\n'
-            return [text, keyboard.keyboard([])]
-
-        if message == 'помощь':
-            return ['Доступные команды', keyboard.keyboard([])]
-
-        else:
-            return ['Не понимаю', keyboard.keyboard([])]
+        return ['Не понимаю', keyboard.keyboard([])]

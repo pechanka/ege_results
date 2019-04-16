@@ -2,6 +2,7 @@ import codecs
 import json
 import keyboard
 import re
+import baza
 
 def zapis(file, k):
     write_file = codecs.open('json/' + file + '.json', 'w', 'utf-8-sig')
@@ -101,9 +102,17 @@ def form_message(message, user, file = 'message_history.json'):
                 text = "Сначала выберите предмет (названия всех доступных предметов ты можешь посмотреть, написав 'помощь')"
             elif message in dates[exams[data[user][0]]]:
                 if data[user][1] == '+':
-                    text = 'Экзамен добавлен'
+                    p = baza.change('json/students', '+', exams[data[user][0]], message, user)
+                    if p == 'Успешно':
+                        text = 'Экзамен успешно добавлен'
+                    else:
+                        text = 'Этот экзамен уже есть в списке твоих экзаменов. Пожалуйста, выбери другой экзамен'
                 else:
-                    text = 'Экзамен удалён'
+                    p = baza.change('json/students', '-', exams[data[user][0]], message, user)
+                    if p == 'Успешно':
+                        text = 'Экзамен успешно удалён'
+                    else:
+                        text = "Этого экзамена нет в списке твоих экзаменов. Если хочешь, чтобы я перестал следить за каким-то экзаменом, напиши мне 'перестать следить'"
                 del data[user]
                 zapis('message_history', data)
             else:

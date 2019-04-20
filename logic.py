@@ -3,10 +3,7 @@ import json
 import keyboard
 import re
 import baza
-
-def zapis(file, k):
-    write_file = codecs.open('json/' + file + '.json', 'w', 'utf-8-sig')
-    json.dump(k, write_file, ensure_ascii=False)
+import files
 
 def form_message(message, user, file = 'message_history.json'):
     data  = json.load(codecs.open('json/' + file, 'r', 'utf-8-sig'))
@@ -30,7 +27,7 @@ def form_message(message, user, file = 'message_history.json'):
 
     if message == 'перестать следить':
         data[user] = [0, '-']
-        zapis('message_history', data)
+        files.json_save('json/message_history', data)
         text = 'Выбери предмет:\n\n'
         for n in ['Допуск к экзаменам', 'Русский язык', 'Математика', 'Физика', 'Химия', 'Информатика', 'Биология', 'История', 'География', 'Иностранный язык', 'Обществознание', 'Литература', 'ГВЭ']:
             text += n + '\n'
@@ -44,7 +41,7 @@ def form_message(message, user, file = 'message_history.json'):
                 data[user] = [capital_message, '+']
         else:
             data[user] = [capital_message, '+']
-        zapis('message_history', data)
+        files.json_save('json/message_history', data)
         text = 'Выбери дату экзамена:\n\n'
         m = dates[exams[capital_message]]
         for t in m:
@@ -114,7 +111,7 @@ def form_message(message, user, file = 'message_history.json'):
                     else:
                         text = "Этого экзамена нет в списке твоих экзаменов. Если хочешь, чтобы я перестал следить за каким-то экзаменом, напиши мне 'перестать следить'"
                 del data[user]
-                zapis('message_history', data)
+                files.json_save('json/message_history', data)
             else:
                 text = 'В выбранную дату этот экзамен не проходит. Попробуй выбрать другую дату:\n\n'
                 m = dates[exams[data[user][0]]]

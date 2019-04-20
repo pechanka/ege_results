@@ -1,6 +1,8 @@
 import re
 import files
-import baza
+import vkapi
+import keyboard
+from settings import token
 
 poisk=r'>(\w*-11.*?\d\d[.]\d\d[.]\d\d\d\d).*?>[0-9]+?<.*?>([0-9]+?)<'
 
@@ -15,10 +17,18 @@ def sravnenie(dict1, dict2):
             slovar[f] = [dict1[f], dict2[f]]
     return slovar
 
-def vk_id(examen, file):
-    t = files.vivod(file)
-    for ex in examen.keys():
-        if ex in t.keys():
-            for d in t[ex]:
-                print(d, ' Экзамен:', ex, ' Было:', examen[ex][0], ' Стало:', examen[ex][1])
-                print()
+def keys_values(mas, value):
+    for m in mas.keys():
+        if mas[m] == value:
+            return m
+
+def vk_id(dictionary, students_file):
+    students = files.json_load(students_file)
+    decoding = files.json_load('json/decoding_exams')
+    for i in dictionary.keys():
+        k = regular(r'\w*-11', i)
+        date = regular(r'\d\d[.]\d\d[.]\d\d\d\d', i)
+        text = "Привет! Обновились результаты экзамена " + keys_values(decoding, k[0]) + ". Ты можешь посмотреть их на сайте РЦОИ: res11.rcoi.net. \n\n Если ты узнал свой результат, ты можешь отписаться от этого экзамена, написав мне 'перестать следить' и выбрав соответствующий экзамен. Если результатов экзамена не видно в личном кабинете, возможно, они появятся чуть позже. Я сообщу тебе, как только узнаю об изменениях."
+        for s in students[i]:
+            vkapi.send(text, s, token, keyboard.keyboard([]))
+
